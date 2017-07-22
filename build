@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#
+# Build the hkjn/urbit Docker image.
+#
+set -euo pipefail
+
+declare DOCKER_USER="hkjn"
+declare DOCKER_IMAGE="urbit"
+declare CPU_ARCH="$(uname -m)"
+declare BASE_IMAGE="hkjn/arch:$CPU_ARCH"
+declare BUILD_DIR="$(mktemp -d)"
+declare TAG="$DOCKER_USER/$DOCKER_IMAGE:$CPU_ARCH"
+
+sed "s|{{ARG_FROM}}|${BASE_IMAGE}|g" Dockerfile > $BUILD_DIR/Dockerfile
+echo "Building $TAG in $BUILD_DIR.."
+docker build -t $TAG $BUILD_DIR
+NO_PUSH=${NO_PUSH:-""}
+[[ "$NO_PUSH" ]] || docker push $TAG
